@@ -4,6 +4,8 @@ require_once __DIR__ . '/config.php';
 
 $tmpPath = __DIR__ . '/tmp/' . date('Ymd');
 
+exec("cp -Ru " . __DIR__ . "/skel/* {$targetFolder}/");
+
 $folders = $parents = $objects = array();
 
 foreach (glob($tmpPath . '/children/*') AS $objFile) {
@@ -26,18 +28,17 @@ foreach ($objects AS $obj) {
     if ($obj['title'] === 'Thumbs.db') {
         continue;
     }
-    $html = '<meta charset="utf-8" />';
+    $breadcrumbs = '<ol class="breadcrumb">';
     foreach ($obj['path'] AS $parentId) {
         if (isset($objects[$parentId])) {
-            $html .= "<a href=\"{$parentId}.html\">{$objects[$parentId]['title']}</a> &gt; ";
+            $breadcrumbs .= "<li><a href=\"{$parentId}.html\">{$objects[$parentId]['title']}</a></li>";
         } else {
-            $html .= "<a href=\"index.html\">首頁</a> &gt; ";
+            $breadcrumbs .= "<li><a href=\"index.html\">首頁</a></li>";
         }
     }
-    $html .= $obj['title'];
-
+    $breadcrumbs .= '<li class="active">' . $obj['title'] . '</li></ol>';
+    $content = '';
     if (isset($folders[$obj['id']])) {
-        $html .= '<hr />資料夾：';
         $files = array();
         foreach ($folders[$obj['id']]['items'] AS $item) {
             if (!isset($folders[$item['id']])) {
@@ -45,21 +46,23 @@ foreach ($objects AS $obj) {
                     $files[] = $item['id'];
                 }
             } else {
-                $html .= "<a href=\"{$item['id']}.html\">{$objects[$item['id']]['title']}</a> | ";
+                $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$item['id']}.html\"><i class=\"fa fa-folder\"></i> {$objects[$item['id']]['title']}</a>";
             }
         }
-        $html .= '<hr />檔案：';
         foreach ($files AS $fileId) {
-            $html .= "<a href=\"{$fileId}.html\">{$objects[$fileId]['title']}</a> | ";
+            $content .= "<a class=\"btn btn-app\" href=\"{$fileId}.html\"><i class=\"fa fa-file\"></i> {$objects[$fileId]['title']}</a>";
         }
     } else {
-        $html .= '<hr />' . $obj['title'];
+        $content .= '<div class="clearfix"></div>' . $obj['title'];
     }
-    file_put_contents("{$targetFolder}/{$obj['id']}.html", $html);
+    file_put_contents("{$targetFolder}/{$obj['id']}.html", strtr(file_get_contents(__DIR__ . '/skel/empty.html'), array(
+        '{{title}}' => $obj['title'],
+        '{{breadcrumbs}}' => $breadcrumbs,
+        '{{content}}' => $content,
+    )));
 }
 
-$html = '<meta charset="utf-8" />';
-$html .= '<hr />資料夾：';
+$content = '';
 $files = array();
 foreach ($folders[$baseFolderId]['items'] AS $item) {
     if (!isset($folders[$item['id']])) {
@@ -67,14 +70,17 @@ foreach ($folders[$baseFolderId]['items'] AS $item) {
             $files[] = $item['id'];
         }
     } else {
-        $html .= "<a href=\"{$item['id']}.html\">{$objects[$item['id']]['title']}</a> | ";
+        $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$item['id']}.html\"><i class=\"fa fa-folder\"></i> {$objects[$item['id']]['title']}</a>";
     }
 }
-$html .= '<hr />檔案：';
 foreach ($files AS $fileId) {
-    $html .= "<a href=\"{$fileId}.html\">{$objects[$fileId]['title']}</a> | ";
+    $content .= "<a class=\"btn btn-app\" href=\"{$fileId}.html\"><i class=\"fa fa-file\"></i> {$objects[$fileId]['title']}</a>";
 }
-file_put_contents("{$targetFolder}/index.html", $html);
+file_put_contents("{$targetFolder}/index.html", strtr(file_get_contents(__DIR__ . '/skel/empty.html'), array(
+    '{{title}}' => '首頁',
+    '{{breadcrumbs}}' => '',
+    '{{content}}' => $content,
+)));
 
 function getParents($id, $path = array()) {
     global $parents;

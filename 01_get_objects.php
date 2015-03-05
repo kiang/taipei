@@ -88,8 +88,13 @@ function printFilesInFolder($service, $folderId, $parent = '') {
                 file_put_contents($childrenCache, json_encode($node));
             }
             $children = json_decode(file_get_contents($childrenCache), true);
-            if(empty($children['items'])) {
+            if (empty($children['items'])) {
                 unlink($childrenCache);
+            }
+
+            $objCache = $tmpPath . '/' . $folderId;
+            if (!file_exists($objCache)) {
+                file_put_contents($objCache, json_encode($service->files->get($folderId)));
             }
 
             foreach ($children['items'] as $item) {

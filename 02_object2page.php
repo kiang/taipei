@@ -3,10 +3,6 @@
 require_once __DIR__ . '/config.php';
 
 $tmpPath = __DIR__ . '/tmp/' . date('Ymd');
-$pagePath = __DIR__ . '/tmp/page';
-if (!file_exists($pagePath)) {
-    mkdir($pagePath, 0777, true);
-}
 
 $folders = $parents = $objects = array();
 
@@ -39,7 +35,7 @@ foreach ($objects AS $obj) {
         }
     }
     $html .= $obj['title'];
-    
+
     if (isset($folders[$obj['id']])) {
         $html .= '<hr />資料夾：';
         $files = array();
@@ -59,7 +55,7 @@ foreach ($objects AS $obj) {
     } else {
         $html .= '<hr />' . $obj['title'];
     }
-    file_put_contents("{$pagePath}/{$obj['id']}.html", $html);
+    file_put_contents("{$targetFolder}/{$obj['id']}.html", $html);
 }
 
 $html = '<meta charset="utf-8" />';
@@ -78,7 +74,7 @@ $html .= '<hr />檔案：';
 foreach ($files AS $fileId) {
     $html .= "<a href=\"{$fileId}.html\">{$objects[$fileId]['title']}</a> | ";
 }
-file_put_contents("{$pagePath}/index.html", $html);
+file_put_contents("{$targetFolder}/index.html", $html);
 
 function getParents($id, $path = array()) {
     global $parents;

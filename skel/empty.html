@@ -69,7 +69,25 @@
                 <section class="content">
                     {{content}}
                     <div class="clearfix"></div>
+                    <hr />
                     <div class="fb-comments" data-numposts="20" data-colorscheme="light" data-href="http://kiang.github.io/taipei/{{id}}.html" data-width="100%"></div>
+                    <div id="disqus_thread"></div>
+                    <script type="text/javascript">
+                        /* * * CONFIGURATION VARIABLES * * */
+                        var disqus_shortname = 'taipeiissuetalk';
+                        var disqus_config = function () {
+                            this.language = "zh_TW";
+                        };
+
+                        /* * * DON'T EDIT BELOW THIS LINE * * */
+                        (function () {
+                            var dsq = document.createElement('script');
+                            dsq.type = 'text/javascript';
+                            dsq.async = true;
+                            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                        })();
+                    </script>
                 </section><!-- /.content -->
             </aside><!-- /.right-side -->
         </div><!-- ./wrapper -->

@@ -1,8 +1,8 @@
 <?php
 
+set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . '/google-api-php-client/src');
 require_once 'Google/autoload.php';
 require_once __DIR__ . '/config.php';
-set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . '/google-api-php-client/src');
 
 session_start();
 

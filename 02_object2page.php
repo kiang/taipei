@@ -53,7 +53,7 @@ foreach ($objects AS $obj) {
             $content .= "<a class=\"btn btn-app\" href=\"{$fileId}.html\"><i class=\"fa fa-file\"></i> {$objects[$fileId]['title']}</a>";
         }
     } else {
-        $content .= '<div class="clearfix"></div>' . $obj['title'];
+        $content .= '<div class="clearfix"></div><a href="https://drive.google.com/open?id=' . $obj['id'] . '" target="_blank" class="btn btn-primary">下載</a>';
     }
     file_put_contents("{$targetFolder}/{$obj['id']}.html", strtr(file_get_contents(__DIR__ . '/skel/empty.html'), array(
         '{{title}}' => $obj['title'],

@@ -59,6 +59,7 @@ foreach ($objects AS $obj) {
         '{{title}}' => $obj['title'],
         '{{breadcrumbs}}' => $breadcrumbs,
         '{{content}}' => $content,
+        '{{id}}' => $obj['id'],
     )));
 }
 
@@ -80,6 +81,7 @@ file_put_contents("{$targetFolder}/index.html", strtr(file_get_contents(__DIR__ 
     '{{title}}' => '首頁',
     '{{breadcrumbs}}' => '',
     '{{content}}' => $content,
+    '{{id}}' => 'index',
 )));
 
 function getParents($id, $path = array()) {

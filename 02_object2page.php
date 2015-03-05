@@ -24,16 +24,36 @@ foreach (glob($tmpPath . '/*') AS $objFile) {
     }
 }
 
+$extraBreadcrumbs = array();
+$sidebar = '<ul class="sidebar-menu">';
+foreach ($tree AS $item) {
+    $sidebar .= '<li class="treeview"><a href="#"><span>' . $item['title'] . '</span><i class="fa fa-angle-left pull-right"></i></a><ul class="treeview-menu">';
+    foreach ($item['links'] AS $link) {
+        $sidebar .= '<li><a href="' . $link['key'] . '.html">' . $link['title'] . '</a></li>';
+
+        foreach ($link['folders'] AS $linkFolderId) {
+            $extraBreadcrumbs[$linkFolderId] = "<li><a href=\"index.html\">首頁</a></li>";
+            $extraBreadcrumbs[$linkFolderId] .= "<li><a href=\"{$link['key']}.html\">{$item['title']} - {$link['title']}</a></li>";
+        }
+    }
+    $sidebar .= '</ul></li>';
+}
+$sidebar .= '</ul>';
+
 foreach ($objects AS $obj) {
     if ($obj['title'] === 'Thumbs.db') {
         continue;
     }
     $breadcrumbs = '<ol class="breadcrumb">';
+    if (isset($extraBreadcrumbs[$obj['id']])) {
+        $breadcrumbs .= $extraBreadcrumbs[$obj['id']];
+    }
     foreach ($obj['path'] AS $parentId) {
+        if (isset($extraBreadcrumbs[$parentId])) {
+            $breadcrumbs .= $extraBreadcrumbs[$parentId];
+        }
         if (isset($objects[$parentId])) {
             $breadcrumbs .= "<li><a href=\"{$parentId}.html\">{$objects[$parentId]['title']}</a></li>";
-        } else {
-            $breadcrumbs .= "<li><a href=\"index.html\">首頁</a></li>";
         }
     }
     $breadcrumbs .= '<li class="active">' . $obj['title'] . '</li></ol>';
@@ -60,28 +80,46 @@ foreach ($objects AS $obj) {
         '{{breadcrumbs}}' => $breadcrumbs,
         '{{content}}' => $content,
         '{{id}}' => $obj['id'],
+        '{{sidebar}}' => $sidebar,
     )));
 }
 
-$content = '';
-$files = array();
-foreach ($folders[$baseFolderId]['items'] AS $item) {
-    if (!isset($folders[$item['id']])) {
-        if ($objects[$item['id']]['title'] !== 'Thumbs.db') {
-            $files[] = $item['id'];
+foreach ($tree AS $item) {
+    $prefix = $item['title'] . ' - ';
+    foreach ($item['links'] AS $link) {
+        $content = '';
+        foreach ($link['folders'] AS $linkFolderId) {
+            $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$linkFolderId}.html\"><i class=\"fa fa-folder\"></i> {$objects[$linkFolderId]['title']}</a>";
         }
-    } else {
-        $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$item['id']}.html\"><i class=\"fa fa-folder\"></i> {$objects[$item['id']]['title']}</a>";
+
+        $breadcrumbs = '<ol class="breadcrumb">';
+        $breadcrumbs .= "<li><a href=\"index.html\">首頁</a></li>";
+        $breadcrumbs .= '<li class="active">' . $prefix . $link['title'] . '</li></ol>';
+
+        file_put_contents("{$targetFolder}/{$link['key']}.html", strtr(file_get_contents(__DIR__ . '/skel/empty.html'), array(
+            '{{title}}' => $prefix . $link['title'],
+            '{{breadcrumbs}}' => $breadcrumbs,
+            '{{content}}' => $content,
+            '{{id}}' => $link['key'],
+            '{{sidebar}}' => $sidebar,
+        )));
     }
 }
-foreach ($files AS $fileId) {
-    $content .= "<a class=\"btn btn-app\" href=\"{$fileId}.html\"><i class=\"fa fa-file\"></i> {$objects[$fileId]['title']}</a>";
+
+
+$content = '';
+foreach ($tree AS $item) {
+    $prefix = $item['title'] . ' - ';
+    foreach ($item['links'] AS $link) {
+        $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$link['key']}.html\"><i class=\"fa fa-folder\"></i> {$prefix}{$link['title']}</a>";
+    }
 }
 file_put_contents("{$targetFolder}/index.html", strtr(file_get_contents(__DIR__ . '/skel/empty.html'), array(
     '{{title}}' => '首頁',
     '{{breadcrumbs}}' => '',
     '{{content}}' => $content,
     '{{id}}' => 'index',
+    '{{sidebar}}' => $sidebar,
 )));
 
 function getParents($id, $path = array()) {

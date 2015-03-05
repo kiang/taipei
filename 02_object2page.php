@@ -59,16 +59,19 @@ foreach ($objects AS $obj) {
     $breadcrumbs .= '<li class="active">' . $obj['title'] . '</li></ol>';
     $content = '';
     if (isset($folders[$obj['id']])) {
-        $files = array();
+        $files = $linkFolders = array();
         foreach ($folders[$obj['id']]['items'] AS $item) {
             if (!isset($folders[$item['id']])) {
                 if ($objects[$item['id']]['title'] !== 'Thumbs.db') {
-                    $files[] = $item['id'];
+                    $files[$objects[$item['id']]['title']] = $item['id'];
                 }
             } else {
-                $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$item['id']}.html\"><i class=\"fa fa-folder\"></i> {$objects[$item['id']]['title']}</a>";
+                $linkFolders[$objects[$item['id']]['title']] = "<a class=\"btn btn-app bg-aqua\" href=\"{$item['id']}.html\"><i class=\"fa fa-folder\"></i> {$objects[$item['id']]['title']}</a>";
             }
         }
+        ksort($linkFolders);
+        ksort($files);
+        $content .= implode('', $linkFolders);
         foreach ($files AS $fileId) {
             $content .= "<a class=\"btn btn-app\" href=\"{$fileId}.html\"><i class=\"fa fa-file\"></i> {$objects[$fileId]['title']}</a>";
         }
@@ -88,9 +91,12 @@ foreach ($tree AS $item) {
     $prefix = $item['title'] . ' - ';
     foreach ($item['links'] AS $link) {
         $content = '';
+        $linkFolders = array();
         foreach ($link['folders'] AS $linkFolderId) {
-            $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$linkFolderId}.html\"><i class=\"fa fa-folder\"></i> {$objects[$linkFolderId]['title']}</a>";
+            $linkFolders[$objects[$linkFolderId]['title']] = "<a class=\"btn btn-app bg-aqua\" href=\"{$linkFolderId}.html\"><i class=\"fa fa-folder\"></i> {$objects[$linkFolderId]['title']}</a>";
         }
+        ksort($linkFolders);
+        $content .= implode('', $linkFolders);
 
         $breadcrumbs = '<ol class="breadcrumb">';
         $breadcrumbs .= "<li><a href=\"index.html\">首頁</a></li>";
@@ -108,12 +114,15 @@ foreach ($tree AS $item) {
 
 
 $content = '';
+$linkFolders = array();
 foreach ($tree AS $item) {
-    $prefix = $item['title'] . ' - ';
     foreach ($item['links'] AS $link) {
-        $content .= "<a class=\"btn btn-app bg-aqua\" href=\"{$link['key']}.html\"><i class=\"fa fa-folder\"></i> {$prefix}{$link['title']}</a>";
+        $folderTitle = "{$item['title']} - {$link['title']}";
+        $linkFolders[$folderTitle] = "<a class=\"btn btn-app bg-aqua\" href=\"{$link['key']}.html\"><i class=\"fa fa-folder\"></i> {$folderTitle}</a>";
     }
 }
+ksort($linkFolders);
+$content .= implode('', $linkFolders);
 file_put_contents("{$targetFolder}/index.html", strtr(file_get_contents(__DIR__ . '/skel/empty.html'), array(
     '{{title}}' => '首頁',
     '{{breadcrumbs}}' => '',

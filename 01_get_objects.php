@@ -5,13 +5,15 @@ require_once 'Google/autoload.php';
 require_once __DIR__ . '/config.php';
 
 session_start();
+/*
+ * if $children['items'] keeps returning empty result, try to reset the session and get new token.
+ */
+//$_SESSION = NULL;
 
 $tmpPath = __DIR__ . '/tmp/' . date('Ymd');
 if (!file_exists($tmpPath)) {
     mkdir($tmpPath, 0777, true);
 }
-
-
 
 $url = "http://{$_SERVER['SERVER_NAME']}{$_SERVER['PHP_SELF']}";
 
@@ -48,7 +50,14 @@ if ($client->getAccessToken()) {
     echo '<pre>';
     // This is uploading a file directly, with no metadata associated.
     $service = new Google_Service_Drive($client);
-    printFilesInFolder($service, $baseFolderId);
+    foreach ($tree AS $item) {
+        foreach ($item['links'] AS $link) {
+            echo "processing {$link['title']}\n";
+            foreach ($link['folders'] AS $folderId) {
+                printFilesInFolder($service, $folderId);
+            }
+        }
+    }
     echo '</pre>';
 }
 
@@ -79,6 +88,9 @@ function printFilesInFolder($service, $folderId, $parent = '') {
                 file_put_contents($childrenCache, json_encode($node));
             }
             $children = json_decode(file_get_contents($childrenCache), true);
+            if(empty($children['items'])) {
+                unlink($childrenCache);
+            }
 
             foreach ($children['items'] as $item) {
                 $objCache = $tmpPath . '/' . $item['id'];

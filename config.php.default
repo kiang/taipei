@@ -4,3 +4,36 @@ $client_id = '';
 $client_secret = '';
 $baseFolderId = '';
 $targetFolder = '';
+$tree = array(
+    array(
+        'title' => '大巨蛋',
+        'links' => array(
+            array(
+                'key' => 'dome',
+                'title' => '官方釋出文件',
+                'folders' => array(
+                    '',
+                ),
+            ),
+            array(
+                'key' => 'dome_other',
+                'title' => '網路蒐集',
+                'folders' => array(
+                    '',
+                ),
+            ),
+        ),
+    ),
+    array(
+        'title' => '美河市',
+        'links' => array(
+            array(
+                'key' => 'mehas_other',
+                'title' => '網路蒐集',
+                'folders' => array(
+                    '',
+                ),
+            ),
+        ),
+    ),
+);
